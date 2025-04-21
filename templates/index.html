@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+Главая
+{% endblock %}
+{% block body %}
+<h1>Все санатории</h1>
+<hr>
+<br>
+{% for sanatorium in sanatoriums %}
+
+<div class="sanatoriy"  onclick="window.location='{{ url_for('sanatoriums.sanatorium', id=sanatorium.id) }}'">
+    <div class="photo">
+        <!-- Добавьте здесь изображение, если оно есть -->
+<!--        <div class="photo-gallery">-->
+        <div class="sanatorium-content">
+<!--         <div class="sanatorium-sidebar">-->
+        {% if sanatorium.photos %}
+            <div class="img-wrap">
+            {% for photo in sanatorium.photos %}
+                <img src="{{ url_for('static', filename=photo.file_path) }}"
+                     alt="Фото санатория {{ sanatorium.name }}"
+                     class="sanatorium-photo">
+            {% endfor %}
+            </div>
+            <button class="btn prev">‹</button>
+            <button class="btn next">›</button>
+        {% else %}
+            <img src="{{ url_for('static', filename='images/example.jpg') }}"
+                 alt="Заглушка"
+                 class="sanatorium-photo">
+        {% endif %}
+<!--         </div>-->
+            </div>
+<!--    </div>-->
+    </div>
+    <div class="main-sanatoriy">
+        <div class="main-sanatoriy-top">
+            <h1 class="name">{{ sanatorium.name }}</h1>
+<!--            <p>ID: {{ sanatorium.id }}</p>-->
+
+                {% if session.get('is_admin') %}
+                    <!-- Доступно только админам -->
+                    <a href="{{ url_for('sanatoriums.create', id=sanatorium.id) }}" class='mini-redactor'></a>
+                    <form method="POST" action="{{ url_for('sanatoriums.delete', id=sanatorium.id) }}">
+                        <button type="submit" class="mini-detele" onclick="return confirm('Вы уверены, что хотите удалить этот санаторий?')">Удалить санаторий</button>
+                    </form>
+                {% endif %}
+
+
+
+
+        </div>
+        <p class="info">Страна: {{ sanatorium.country }}</p>
+        <p class="info">Питание: {{ sanatorium.food_type }}</p>
+        <p class="info">Удобства: {{ sanatorium.amenities }}</p>
+        <p class="info">Рейтинг: {{ sanatorium.average_review_score }}/10</p>
+        <br>
+        <div class="get-contact">
+            <span class="phone">+7 {{ sanatorium.phone }}</span>
+            <span class="email">{{ sanatorium.email }}</span>
+        </div>
+        <span class="cost">{{ sanatorium.price_per_night }} ₽</span>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.photo').forEach(carousel => {
+        const imgWrap = carousel.querySelector('.img-wrap');
+        const imgs = carousel.querySelectorAll('.img-wrap img');
+        const prevBtn = carousel.querySelector('.prev');
+        const nextBtn = carousel.querySelector('.next');
+        let idx = 0;
+
+        function showImg() {
+            if (idx >= imgs.length) idx = 0;
+            if (idx < 0) idx = imgs.length - 1;
+            imgWrap.style.transform = `translateX(-${idx * 100}%)`;
+        }
+
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();  // Prevents triggering the sanatorium link
+            idx++;
+            showImg();
+        });
+
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();  // Prevents triggering the sanatorium link
+            idx--;
+            showImg();
+        });
+
+        showImg();
+    });
+</script>
+
+{% endfor %}
+
+
+{% endblock %}
